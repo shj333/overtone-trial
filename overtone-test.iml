@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Clojure" name="Clojure">
+      <configuration>
+        <option name="myJvmOpts" value="-Xss1m -server -Djava.library.path=target/native/macosx/x86_64" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/target/classes" />
+    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.clojure:clojure:1.6.0" level="project" />
+    <orderEntry type="library" name="Maven: overtone:overtone:0.9.1" level="project" />
+    <orderEntry type="library" name="Maven: org.clojure:data.json:0.2.3" level="project" />
+    <orderEntry type="library" name="Maven: clj-native:clj-native:0.9.3" level="project" />
+    <orderEntry type="library" name="Maven: net.java.dev.jna:jna:3.4.0" level="project" />
+    <orderEntry type="library" name="Maven: overtone:at-at:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: overtone:osc-clj:0.9.0" level="project" />
+    <orderEntry type="library" name="Maven: javax.jmdns:jmdns:3.4.1" level="project" />
+    <orderEntry type="library" name="Maven: commons-net:commons-net:3.0.1" level="project" />
+    <orderEntry type="library" name="Maven: overtone:byte-spec:0.3.1" level="project" />
+    <orderEntry type="library" name="Maven: overtone:midi-clj:0.5.0" level="project" />
+    <orderEntry type="library" name="Maven: overtone:libs.handlers:0.2.0" level="project" />
+    <orderEntry type="library" name="Maven: overtone:scsynth:3.5.7.0" level="project" />
+    <orderEntry type="library" name="Maven: overtone:scsynth-extras:3.5.7.0" level="project" />
+    <orderEntry type="library" name="Maven: clj-glob:clj-glob:1.0.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.clojure:tools.nrepl:0.2.3" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: clojure-complete:clojure-complete:0.2.3" level="project" />
+  </component>
+</module>
+
