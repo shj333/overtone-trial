@@ -1,6 +1,7 @@
 (ns
   ^{:author stuart}
-  berwickheights.notes_metalevel.chaos)
+  berwickheights.notes_metalevel.chaos
+  (:use overtone.live))
 
 (defn logistic-map
   "Returns lazy seq according to y(s, c) = c * y * (1 - y). From Chapter 17 of Notes from the Metalevel."
@@ -20,10 +21,10 @@
 (definst sawzall [freq 440 amp 0.2]
   (* amp (env-gen (perc 0.1 0.8) :action FREE) (saw freq)))
 
-(defn play-freqs [t beat-dur freqs amp 0.2]
+(defn play-freqs [t beat-dur freqs amp]
   (when freqs
     (let [next-beat (+ t beat-dur)]
       (at t (sawzall (first freqs) amp))
       (apply-by next-beat #'play-freqs next-beat beat-dur (next freqs) amp []))))
 
-(play-freqs (now) 50 logistic-map-freqs)
+(play-freqs (now) 50 logistic-map-freqs 0.2)
