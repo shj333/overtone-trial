@@ -3,14 +3,38 @@
   berwickheights.dodge_jerse.chapter4
   (:use overtone.live))
 
+;
+; Computer Music by Dodge & Jerse
+; Chapter 4
+;
+
+; Section 4.5
 ; Linear decay envelope is heard with a sharp drop off
-(definst linear_dec [freq 120]
+(definst linear-dec [freq 120]
          (* (line 1 0 5 :action FREE)
             (lf-tri freq)))
-(linear_dec 110)
+(linear-dec 110)
 
 ; Exponential decay envelope is heard with smooth decay, more natural
-(definst exp_dec [freq 120]
+(definst exp-dec [freq 120]
          (* (x-line 1 0.001 5 :action FREE)
             (lf-tri freq)))
-(exp_dec 110)
+(exp-dec 110)
+
+
+; Section 4.8
+; Amplitude Modulation
+(definst am-inst [car-freq 440 mod-freq 3 mod-index 0.5 amp 0.5 dur 5]
+         (let [modulator (+ amp (* mod-index amp (sin-osc mod-freq)))
+               env (env-gen (env-perc :release dur) :action FREE)]
+           (* modulator env (sin-osc car-freq))))
+(am-inst :mod-index 0 :mod-freq 100)    ; No modulation, simple sine tone
+(am-inst :mod-index 1 :mod-freq 3)      ; Vibrato
+(am-inst :mod-index 1 :mod-freq 7)      ; Fast vibrato
+(am-inst :mod-index 0.5 :mod-freq 100)  ; Side bands
+
+(definst am-funky [car-freq 440 mod-freq 3 mod-index 0.5 amp 0.5 dur 5]
+         (let [modulator (+ amp (* mod-index amp (lf-tri mod-freq)))
+               env (env-gen (env-perc :release dur) :action FREE)]
+           (* modulator env (sin-osc car-freq))))
+(am-funky :mod-index 0.15 :mod-freq 50)
