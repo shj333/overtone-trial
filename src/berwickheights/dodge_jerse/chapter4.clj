@@ -38,3 +38,14 @@
                env (env-gen (env-perc :release dur) :action FREE)]
            (* modulator env (sin-osc car-freq))))
 (am-funky :mod-index 0.15 :mod-freq 50)
+
+
+; Ring Modulation
+(definst ring-mod-inst [car-freq 261 mod-freq 440 amp 0.5 dur 5]
+         (let [modulator (* amp (sin-osc mod-freq))
+               env (env-gen (env-perc :release dur) :action FREE)]
+           (* modulator env (sin-osc car-freq))))
+(ring-mod-inst)
+
+(demo 2 (apply * 0.4 (map #(sin-osc %) (take 5 (repeatedly #(rand 1000))))))
+
