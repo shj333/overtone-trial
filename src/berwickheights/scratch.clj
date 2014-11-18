@@ -9,4 +9,4 @@
 (demo 4 (apply * 0.0001 (map #(osc % (rand 1000)) buf-ids)))
 
 
-ß
+(demo 2 (apply * 0.4 (map #(sin-osc %) (take 5 (repeatedly #(rand 1000))))))
