@@ -55,8 +55,8 @@
                car-buf (buffer 2048)
                car-id (buffer-id car-buf)
                env (env-gen (env-perc :release dur) :action FREE)]
-           (apply snd "/b_gen" mod-id "sine1" 4 (map / (range 1.0 (inc 4))))
-           (apply snd "/b_gen" car-id "sine1" 4 [0.5 0.75 0.25 0.15])
+           (apply snd "/b_gen" mod-id "sine1" 7 (map / (range 1.0 (inc 4))))
+           (apply snd "/b_gen" car-id "sine1" 7 [0.5 0.75 0.25 0.15])
            (* modulator env (osc car-id car-freq))))
 (ring-mod-dense-inst)
 (ring-mod-dense-inst :car-freq 1315 :mod-freq 1113)
