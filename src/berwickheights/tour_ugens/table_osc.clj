@@ -1,4 +1,4 @@
-(ns berwickhheights.tour_ugens.table_osc
+(ns berwickheights.tour-ugens.table-osc
   (:require [clojure.math.numeric-tower :as math])
   (:use overtone.live))
 

@@ -1,6 +1,4 @@
-(ns
-  ^{:author stuart}
-  berwickheights.notes_metalevel.chaos
+(ns berwickheights.notes-metalevel.chaos
   (:use overtone.live))
 
 (defn logistic-map

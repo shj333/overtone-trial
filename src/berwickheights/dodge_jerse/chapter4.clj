@@ -1,6 +1,4 @@
-(ns
-  ^{:author stuart}
-  berwickheights.dodge_jerse.chapter4
+(ns berwickheights.dodge-jerse.chapter4
   (:use overtone.live))
 
 ;
