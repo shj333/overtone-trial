@@ -25,6 +25,14 @@
 (demo 60 (* 0.1 (c-osc buf-id 100 0.7)))
 
 ; Variable wavetable oscillator
-
-
+(defn- create-buf [idx]
+  (let [buf (buffer 1024)
+        buf-id (buffer-id buf)
+        n (math/expt (+ idx 1.0) 2)
+        a (map #(math/expt (/ (- n %) n) 2) (range n))]
+    (apply snd "/b_gen" buf-id "sine1" 7 a)
+    (prn "buf: " buf-id)
+    buf-id))
+(def buf-ids (map #(create-buf %) (range 8)))
+(demo 60 (* 0.3 (v-osc (mouse-x:kr (first buf-ids) (last buf-ids)) 120)))
 
