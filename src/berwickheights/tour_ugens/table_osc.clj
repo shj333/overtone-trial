@@ -36,3 +36,5 @@
 (def buf-ids (map #(create-buf %) (range 8)))
 (demo 60 (* 0.3 (v-osc (mouse-x:kr (first buf-ids) (last buf-ids)) 120)))
 
+; Three v-osc's summed
+(demo 60 (* 0.2 (v-osc3 (mouse-x:kr (first buf-ids) (last buf-ids)) 120 151.13 179.42)))
