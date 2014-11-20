@@ -46,7 +46,7 @@
 (ring-mod-inst)
 
 ; Ring Modulation with dense spectra
-(definst ring-mod-dense-inst [car-freq 261 mod-freq 440 amp 0.1 dur 5]
+(definst ring-mod-dense [car-freq 261 mod-freq 440 amp 0.1 dur 5]
          (let [mod-buf (buffer 2048)
                mod-id (buffer-id mod-buf)
                modulator (* amp (osc mod-id mod-freq))
@@ -56,21 +56,64 @@
            (apply snd "/b_gen" mod-id "sine1" 7 (map / (range 1.0 (inc 4))))
            (apply snd "/b_gen" car-id "sine1" 7 [0.5 0.75 0.25 0.15])
            (* modulator env (osc car-id car-freq))))
-(ring-mod-dense-inst)
-(ring-mod-dense-inst :car-freq 1315 :mod-freq 1113)
+(ring-mod-dense)
+(ring-mod-dense :car-freq 1315 :mod-freq 1113)
 
 
 ; Vibrato via Freq Modulation
-(definst fm-vib-inst [freq 440 vib-width 10 vib-rate 7 amp 0.5 dur 5]
+(definst fm-vib [freq 440 vib-width 10 vib-rate 7 amp 0.5 dur 5]
          (let [modulator (+ freq (* vib-width (sin-osc vib-rate)))
                env (env-gen (env-perc :release dur) :action FREE)]
            (* amp env (sin-osc modulator))))
-(fm-vib-inst)
+(fm-vib)
 
 
+; Section 4.9
 ; Noise
+; Equivalents of RAND generator
 (def noise-env (env-gen (env-perc :release 2) :action FREE))
 (demo (* noise-env (white-noise)))
 (demo (* noise-env (brown-noise)))
 (demo (* noise-env (pink-noise)))
 (demo (* noise-env (gray-noise)))
+
+; Equivalent of RANDH generator (sample and hold)
+(demo (* noise-env (lf-noise0 1760)))
+
+; Equivalent of RANDI generator (linear interpolation between samples)
+(demo (* noise-env (lf-noise1 1760)))
+
+; Another equivalent of RANDI generator (quadratic interpolation between samples)
+(demo (* noise-env (lf-noise2 1760)))
+
+
+
+; Section 4.11
+; Noise and Ring Modulation
+(definst noise-ring [freq 440 rand-freq 10 vib-rate 7 amp 0.5 dur 5]
+         (let [env (env-gen (env-perc :release dur) :action FREE)
+               ; NOTE: If lf-noise0 is used, noise causes more choppy sound, lf-noise1 less so, lf-noise2 smooth
+               noise (* env (lf-noise2 rand-freq))]
+           (* amp noise (sin-osc freq))))
+(noise-ring :rand-freq 4)
+(noise-ring :rand-freq 20)
+(noise-ring :rand-freq 44)
+(noise-ring :rand-freq 100)
+(noise-ring :rand-freq 200)
+
+; Use glissando for noise freq, sounds seems to expand outward as more noise is added
+(definst gliss-noise-ring [freq 440 rand-freq 10 vib-rate 7 amp 1.0 dur 10]
+         (let [env (env-gen (env-perc :release dur) :action FREE)
+               noise (* env (lf-noise2 (line rand-freq (* 10 rand-freq) dur)))]
+           (* amp noise (sin-osc freq))))
+(gliss-noise-ring :rand-freq 44)
+(gliss-noise-ring :rand-freq 100)
+(gliss-noise-ring :rand-freq 200)
+(gliss-noise-ring :rand-freq 400)
+
+; Risset drum instrument
+(definst risset-drum [freq 440 amp 1.0 dur 10]
+         (let [env (env-gen (env-perc :release dur) :action FREE)
+               noise (* env (lf-noise2 (line rand-freq (* 10 rand-freq) dur)))]
+           (* amp noise (sin-osc freq))))
+
