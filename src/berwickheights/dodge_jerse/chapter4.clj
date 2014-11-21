@@ -54,7 +54,7 @@
                car-id (buffer-id car-buf)
                env (env-gen (env-perc :release dur) :action FREE)]
            (apply snd "/b_gen" mod-id "sine1" 7 (map / (range 1.0 (inc 4))))
-           (apply snd "/b_gen" car-id "sine1" 7 [0.5 0.75 0.25 0.15])
+           (snd "/b_gen" car-id "sine1" 7 0.5 0.75 0.25 0.15)
            (* modulator env (osc car-id car-freq))))
 (ring-mod-dense)
 (ring-mod-dense :car-freq 1315 :mod-freq 1113)
@@ -111,9 +111,53 @@
 (gliss-noise-ring :rand-freq 200)
 (gliss-noise-ring :rand-freq 400)
 
+
 ; Risset drum instrument
-(definst risset-drum [freq 440 amp 1.0 dur 10]
-         (let [env (env-gen (env-perc :release dur) :action FREE)
-               noise (* env (lf-noise2 (line rand-freq (* 10 rand-freq) dur)))]
-           (* amp noise (sin-osc freq))))
+; Create a wave with partials at 10, 16, 22 and 23 with relative amps of 1, 1.5, 2 and 1.5
+(def inharm-buf (buffer 2048))
+(def inharm-buf-id (buffer-id inharm-buf))
+(snd "/b_gen" buf-id "sine2" 7 10 0.5 16 0.75 22 1.0 23 0.75)
+; (demo 5 (* 0.5 (osc buf-id 100 0)))
+
+; Instrument as designed by Risset using above inharmonic wave stored in buffer
+(definst risset-drum [freq 200 amp 3 dur 0.5]
+         ; inharm-env and randi-env have sharper decay than fund-env
+         (let [fund-env (env-gen (env-perc :release dur :level (/ amp 2.5) :curve -4) :action FREE)
+               inharm-env (env-gen (env-perc :release dur :level (/ amp 6) :curve -8) :action FREE)
+               randi-env (env-gen (env-perc :release dur :level (/ amp 2) :curve -8) :action FREE)
+               randi (* randi-env (lf-noise1 400))
+               noise (* randi (sin-osc 500))
+               inharm (* inharm-env (osc inharm-buf-id (/ freq 10)))
+               fund (* fund-env (sin-osc freq))]
+           (+ noise inharm fund)))
+; snare
+(risset-drum)
+; bass drum
+(risset-drum :freq 50)
+; bongo
+(risset-drum :freq 100)
+; definite pitch due to longer duration
+(risset-drum :dur 3)
+
+; Risset bell
+(definst risset-bell [freq 200 amp 1 dur 20]
+         (let [data [{:amp 1    :dur 1     :freq-m 0.56 }
+                     {:amp 0.67 :dur 0.9   :freq-m 0.56 :freq-a 1 }
+                     {:amp 1    :dur 0.65  :freq-m 0.92 }
+                     {:amp 1.8  :dur 0.55  :freq-m 0.92 :freq-a 1.7}
+                     {:amp 2.67 :dur 0.325 :freq-m 1.19 }
+                     {:amp 1.67 :dur 0.35  :freq-m 1.7  }
+                     {:amp 1.46 :dur 0.25  :freq-m 2    }
+                     {:amp 1.33 :dur 0.2   :freq-m 2.74 }
+                     {:amp 1.33 :dur 0.15  :freq-m 3    }
+                     {:amp 1    :dur 0.1   :freq-m 3.76 }
+                     {:amp 1.33 :dur 0.75  :freq-m 4.07 }
+                    ]]
+           (reduce + (map #(let [this-freq (+ (* freq (% :freq-m) (% :freq-a 0)))
+                                  this-amp  (* amp (% :amp))
+                                  this-dur  (* dur (% :dur))
+                                  env (env-gen (env-lin :attack 0.0001 :release this-dur :level this-amp :curve :exp) :action FREE)]
+                              (* env (sin-osc this-freq))) data))))
+(risset-bell)
+
 
