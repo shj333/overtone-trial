@@ -1,5 +1,6 @@
 (ns berwickheights.dodge-jerse.chapter4
-  (:use overtone.live))
+  (:use overtone.live)
+  (:use [clojure.repl :only (source)]))
 
 ;
 ; Computer Music by Dodge & Jerse
@@ -140,24 +141,26 @@
 (risset-drum :dur 3)
 
 ; Risset bell
-(definst risset-bell [freq 200 amp 1 dur 20]
-         (let [data [{:amp 1    :dur 1     :freq-m 0.56 }
-                     {:amp 0.67 :dur 0.9   :freq-m 0.56 :freq-a 1 }
-                     {:amp 1    :dur 0.65  :freq-m 0.92 }
-                     {:amp 1.8  :dur 0.55  :freq-m 0.92 :freq-a 1.7}
-                     {:amp 2.67 :dur 0.325 :freq-m 1.19 }
-                     {:amp 1.67 :dur 0.35  :freq-m 1.7  }
-                     {:amp 1.46 :dur 0.25  :freq-m 2    }
-                     {:amp 1.33 :dur 0.2   :freq-m 2.74 }
-                     {:amp 1.33 :dur 0.15  :freq-m 3    }
-                     {:amp 1    :dur 0.1   :freq-m 3.76 }
-                     {:amp 1.33 :dur 0.75  :freq-m 4.07 }
-                    ]]
-           (reduce + (map #(let [this-freq (+ (* freq (% :freq-m) (% :freq-a 0)))
+(definst risset-bell [freq 200 amp 0.2 dur 20]
+         (let [data [{:amp 1    :dur 1      :freq-m 0.56 }
+                     {:amp 0.67 :dur 0.9    :freq-m 0.56 :freq-a 1 }
+                     {:amp 1    :dur 0.65   :freq-m 0.92 }
+                     {:amp 1.8  :dur 0.55   :freq-m 0.92 :freq-a 1.7}
+                     {:amp 2.67 :dur 0.325  :freq-m 1.19 }
+                     {:amp 1.67 :dur 0.35   :freq-m 1.7  }
+                     {:amp 1.46 :dur 0.25   :freq-m 2    }
+                     {:amp 1.33 :dur 0.2    :freq-m 2.74 }
+                     {:amp 1.33 :dur 0.15   :freq-m 3    }
+                     {:amp 1    :dur 0.1    :freq-m 3.76 }
+                     {:amp 1.33 :dur 0.075  :freq-m 4.07 }
+                    ]
+               release-env (env-gen (envelope [1, 1, 0] [dur, 0.0001] :linear) :action FREE)]
+           (* release-env (reduce + (map #(let [this-freq (+ (* freq (% :freq-m)) (% :freq-a 0))
                                   this-amp  (* amp (% :amp))
                                   this-dur  (* dur (% :dur))
-                                  env (env-gen (env-lin :attack 0.0001 :release this-dur :level this-amp :curve :exp) :action FREE)]
-                              (* env (sin-osc this-freq))) data))))
+                                  env (env-gen (envelope [this-amp, 0] [this-dur] :squared))]
+                            (* env (sin-osc this-freq)))
+                          data)))))
 (risset-bell)
-
+(map #(risset-bell :freq % :amp 0.05) (take 5 (repeatedly #(rand 1000))))
 
