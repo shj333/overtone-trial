@@ -190,6 +190,20 @@
 (metallic :freq (midi->hz 81) :sq-freq-mult 3.02)
 (metallic :freq (midi->hz 76) :sq-freq-mult 3.02)
 
+(let [n (now)
+      data [{:freq (midi->hz 74) :sq-freq-mult 3.02 :time 500}
+            {:freq (midi->hz 61) :sq-freq-mult 3.42 :time 625}
+            {:freq (midi->hz 70) :sq-freq-mult 3.12 :time 1000}
+            {:freq (midi->hz 81) :sq-freq-mult 3.02 :time 1125}
+            {:freq (midi->hz 76) :sq-freq-mult 3.32 :time 1625}]]
+  (map #(let [this-freq (% :freq)
+              this-mult (% :sq-freq-mult)
+              this-time (% :time)]
+         (at (+ n this-time) (metallic this-freq this-mult 0.5 0.01 0.1 0.2))) data)
+  (map #(let [this-freq (% :freq)
+              this-mult (% :sq-freq-mult)]
+         (at (+ n 2000) (metallic this-freq this-mult 0.2 2.0 2.0 4.0))) data))
+
 (metallic :freq (midi->hz 74) :sq-freq-mult 3.02 :attack 2.0 :dur 2 :release 4)
 
 
