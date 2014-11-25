@@ -154,13 +154,57 @@
                      {:amp 1    :dur 0.1    :freq-m 3.76 }
                      {:amp 1.33 :dur 0.075  :freq-m 4.07 }
                     ]
-               release-env (env-gen (envelope [1, 1, 0] [dur, 0.0001] :linear) :action FREE)]
+               release-env (env-gen (envelope [1 1 0] [dur 0.0001] :linear) :action FREE)]
            (* release-env (reduce + (map #(let [this-freq (+ (* freq (% :freq-m)) (% :freq-a 0))
                                   this-amp  (* amp (% :amp))
                                   this-dur  (* dur (% :dur))
-                                  env (env-gen (envelope [this-amp, 0] [this-dur] :squared))]
+                                  env (env-gen (envelope [this-amp 0] [this-dur] :squared))]
                             (* env (sin-osc this-freq)))
                           data)))))
 (risset-bell)
 (map #(risset-bell :freq % :amp 0.05) (take 5 (repeatedly #(rand 1000))))
+
+
+; Chorus effect
+(definst chorus-inst [freq 440 amp 1.0 dur 5]
+         (let [env (env-gen (env-perc :release dur) :action FREE)]
+           (* env amp (+ (sin-osc freq) (sin-osc (+ freq 4))) (lf-noise2 5))))
+(chorus-inst)
+
+
+
+; Section 4.12
+; Risset Mutations I
+(definst metallic [freq 200 sq-freq-mult 1.0 amp 0.5 attack 0.01 dur 0.5 release 0.5]
+         (let [env (env-gen (envelope [0 amp amp 0] [attack dur release] :linear) :action FREE)
+               sin-freq (/ freq (- sq-freq-mult 1))
+               sq-freq (* sin-freq sq-freq-mult)]
+           (* env (sin-osc sin-freq) (square sq-freq))))
+(metallic :freq 440 :sq-freq-mult 2.02)
+(metallic :freq 440 :sq-freq-mult 3.02)
+(metallic :freq 440 :sq-freq-mult 4.02)
+
+(metallic :freq (midi->hz 74) :sq-freq-mult 3.02)
+(metallic :freq (midi->hz 61) :sq-freq-mult 3.02)
+(metallic :freq (midi->hz 70) :sq-freq-mult 3.02)
+(metallic :freq (midi->hz 81) :sq-freq-mult 3.02)
+(metallic :freq (midi->hz 76) :sq-freq-mult 3.02)
+
+(metallic :freq (midi->hz 74) :sq-freq-mult 3.02 :attack 2.0 :dur 2 :release 4)
+
+
+(definst gong [amp 0.2]
+         (let [data [{:freq (midi->hz 74) :dur 8}
+                     {:freq (midi->hz 61) :dur 6}
+                     {:freq (midi->hz 70) :dur 10}
+                     {:freq (midi->hz 81) :dur 12}
+                     {:freq (midi->hz 76) :dur 5}
+                     ]
+               max-dur (apply max (map :dur data))
+               release-env (env-gen (envelope [1 1 0] [max-dur 0.0001] :linear) :action FREE)]
+           (* release-env (reduce + (map #(let [this-freq (% :freq)
+                                                this-env (env-gen (env-perc 0.3 (% :dur) amp))]
+                                           (* this-env (sin-osc this-freq))) data)))))
+(gong)
+
 
