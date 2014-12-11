@@ -189,22 +189,21 @@
 (metallic :freq (midi->hz 70) :sq-freq-mult 3.02)
 (metallic :freq (midi->hz 81) :sq-freq-mult 3.02)
 (metallic :freq (midi->hz 76) :sq-freq-mult 3.02)
+(metallic :freq (midi->hz 74) :sq-freq-mult 3.02 :attack 2.0 :dur 2 :release 4)
 
 (let [n (now)
-      data [{:freq (midi->hz 74) :sq-freq-mult 3.02 :time 500}
-            {:freq (midi->hz 61) :sq-freq-mult 3.42 :time 625}
-            {:freq (midi->hz 70) :sq-freq-mult 3.12 :time 1000}
-            {:freq (midi->hz 81) :sq-freq-mult 3.02 :time 1125}
-            {:freq (midi->hz 76) :sq-freq-mult 3.32 :time 1625}]]
+      data [{:freq (midi->hz 74) :sq-freq-mult 3.02 :time 500  :gong-dur 8}
+            {:freq (midi->hz 61) :sq-freq-mult 3.42 :time 625  :gong-dur 6}
+            {:freq (midi->hz 70) :sq-freq-mult 3.12 :time 1000 :gong-dur 10}
+            {:freq (midi->hz 81) :sq-freq-mult 3.02 :time 1250 :gong-dur 12}
+            {:freq (midi->hz 76) :sq-freq-mult 3.32 :time 1625 :gong-dur 5}]]
   (map #(let [this-freq (% :freq)
               this-mult (% :sq-freq-mult)
-              this-time (% :time)]
-         (at (+ n this-time) (metallic this-freq this-mult 0.5 0.01 0.1 0.2))) data)
-  (map #(let [this-freq (% :freq)
-              this-mult (% :sq-freq-mult)]
-         (at (+ n 2000) (metallic this-freq this-mult 0.2 2.0 2.0 4.0))) data))
+              this-time (% :time)
+              this-dur (% :gong-dur)]
+         (at (+ n this-time) (metallic this-freq this-mult 0.5 0.01 0.1 0.2))
+         (at (+ n 1900) (metallic this-freq this-mult 0.2 2.0 this-dur 4.0))) data))
 
-(metallic :freq (midi->hz 74) :sq-freq-mult 3.02 :attack 2.0 :dur 2 :release 4)
 
 
 (definst gong [amp 0.2]
