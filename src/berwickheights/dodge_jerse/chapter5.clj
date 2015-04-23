@@ -96,3 +96,8 @@
 
 ; Like this idea as a percussive sound
 (complex-mod-fm :car-freq 70 :mod1-freq 20 :mod2-freq 15 :index-of-mod1 3 :index-of-mod2 10 :dur 0.9 :amp 2.0)
+
+
+; Section 5.2 Waveshaping
+; See berwickhheights.tour-ugens.distortion for a wave shaping example using
+; "shaper" and chebyshev polynomials
