@@ -21,10 +21,10 @@
       n1 60
       n2 50
       multiplier (/ n2 n1)]
-  ;(demo 5 (* 0.2 (blip freq1 n1)))
-  ;(demo 5 (* 0.2 (blip freq2 n2)))
-  (demo 5 (* 0.2 (- (blip freq1 n1) (* multiplier (blip freq2 n2)))))
-  )
+
+      ;(demo 5 (* 0.2 (blip freq1 n1))))
+      ;(demo 5 (* 0.2 (blip freq2 n2))))
+      (demo 5 (* 0.2 (- (blip freq1 n1) (* multiplier (blip freq2 n2))))))
 
 ; 6.5 Filter Combinations
 (definst filter-parallel [cf1 2000 cf2 3000 rq 0.4 amp 0.5 dur 5]
@@ -66,10 +66,16 @@
 (pitch-perc :cf 2000 :amp 8.0)
 
 ; Figure 6.22
-(definst gliss-bands [min-cf 2000 min-bw 1 range-bw 1 ratio amp 3.0 dur 1]
+(definst gliss-bands [min-cf 261.6 ratio 2.828 min-pct-bw 0.05 range-bw 0.45 amp 0.2 dur 4]
          (let [source (white-noise)
-               bw (* 0.05 cf)
+               freq (/ 1 dur)
+               cf-osc (+ min-cf (* ratio (sin-osc freq)))
+               bw-osc (+ min-pct-bw (* range-bw (sin-osc freq)))
+               cf (* min-cf cf-osc)
+               bw (* cf bw-osc)
                rq (/ bw cf)
                env (env-gen (env-perc :release dur) :action FREE)]
+           (shared-out:kr 0 )
            (* amp env (bpf source cf rq))))
+(gliss-bands)
 
