@@ -52,7 +52,7 @@
 (demo 10 (* 0.2 (brf (white-noise) (mouse-x:kr 100 4000) 0.8)))
 (demo 10 (* 0.2 (brf (white-noise) 3000 (mouse-x:kr 0.1 0.7))))
 
-; 6.8 Sub Synth Instruments that use noise sources
+; 6.8 Subtractive Synth Instruments that use noise sources
 ; Pitched percussion by choosing bandwidth of 5% of freq
 (definst pitch-perc [cf 2000 amp 3.0 dur 1]
          (let [source (white-noise)
@@ -65,17 +65,26 @@
 (pitch-perc :cf 1000 :amp 8.0)
 (pitch-perc :cf 2000 :amp 8.0)
 
-; Figure 6.22
-(definst gliss-bands [min-cf 261.6 ratio 2.828 min-pct-bw 0.05 range-bw 0.45 amp 0.2 dur 4]
+; Figure 6.22: Dynamic application of filter, cf goes from middle C to octave+tritone higher, bw goes from 5% to 50% of cf
+(definst gliss-bands [start-midi 60 end-midi 78 min-bw-pct 0.05 bw-pct-range 0.45 amp 30 dur 4]
          (let [source (white-noise)
-               freq (/ 1 dur)
-               cf-osc (+ min-cf (* ratio (sin-osc freq)))
-               bw-osc (+ min-pct-bw (* range-bw (sin-osc freq)))
-               cf (* min-cf cf-osc)
-               bw (* cf bw-osc)
+               min-cf (midicps start-midi)
+               max-cf (midicps end-midi)
+               cf (x-line:kr min-cf max-cf dur)
+               bw (x-line:kr (* cf min-bw-pct) (* cf (+ min-bw-pct bw-pct-range)) dur)
                rq (/ bw cf)
                env (env-gen (env-perc :release dur) :action FREE)]
-           (shared-out:kr 0 )
            (* amp env (bpf source cf rq))))
 (gliss-bands)
+(gliss-bands :dur 10)
 
+; 6.9 Filtering periodic sources
+; Figure 6.25: Amplitude env also drives the filter
+(definst sin-filter [freq 440 filter-scale-factor 0.45 amp 1 dur 4]
+         (let [source (sin-osc freq)
+               env (env-gen (env-perc :release dur) :action FREE)
+               cf 1
+               bw (* 0.05 cf)
+               rq 20.0]
+           (* amp env (bpf source cf rq))))
+(sin-filter :amp 20)
