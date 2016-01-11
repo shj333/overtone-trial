@@ -80,11 +80,11 @@
 
 ; 6.9 Filtering periodic sources
 ; Figure 6.25: Amplitude env also drives the filter
-(definst sin-filter [freq 440 filter-scale-factor 0.45 amp 1 dur 4]
-         (let [source (sin-osc freq)
-               env (env-gen (env-perc :release dur) :action FREE)
-               cf 1
-               bw (* 0.05 cf)
-               rq 20.0]
-           (* amp env (bpf source cf rq))))
-(sin-filter :amp 20)
+(definst sin-filter [freq 440 filter-scale-factor 0.45 amp 0.5 dur 4]
+         (let [source (white-noise)
+               ; env (env-gen (env-perc :release dur) :action FREE)
+               cf 0.01
+               bw 5.0]
+           (* amp (b-band-pass source cf bw))))
+(sin-filter)
+
