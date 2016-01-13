@@ -32,12 +32,12 @@
 
 (defn play-perc [nome]
   (let [beat (+ (nome) 0.6)]
-    (at (nome (+ 1 beat)) (pitch-perc :cf 2000 :amp 8.0))
-    (at (nome (+ 1.125 beat)) (pitch-perc :cf 2100 :amp 6.0))
-    (at (nome (+ 1.25 beat)) (pitch-perc :cf 2300 :amp 4.0))
-    (at (nome (+ 1.375 beat)) (pitch-perc :cf 1900 :amp 8.0))
-    (at (nome (+ 1.75 beat)) (pitch-perc :cf 2700 :amp 12.0))
-    (at (nome (+ 2.1 beat)) (pitch-perc :cf 1300 :amp 12.0))))
+    (at (nome (+ 1 beat)) (pitch-perc :cf 2000 :amp 4.0))
+    (at (nome (+ 1.125 beat)) (pitch-perc :cf 2100 :amp 3.0))
+    (at (nome (+ 1.25 beat)) (pitch-perc :cf 2300 :amp 3.0))
+    (at (nome (+ 1.375 beat)) (pitch-perc :cf 1900 :amp 4.0))
+    (at (nome (+ 1.75 beat)) (pitch-perc :cf 2700 :amp 6.0))
+    (at (nome (+ 2.1 beat)) (pitch-perc :cf 1300 :amp 6.0))))
 
 (defn section [nome]
   (play-gong nome)
