@@ -1,5 +1,9 @@
-(ns overtone-test.time-test
-  (use overtone.live))
+(ns overtone-test.timing
+  (:use overtone.core))
+
+
+; (boot-external-server)
+; (use 'overtone.live)
 
 ;
 ; Instruments
@@ -10,7 +14,7 @@
            (* this-env (sin-osc this-freq))))
 
 (defn play-gong-cluster [gong-data oct-mult]
-  (doseq [item gong-data] (gong2 :freq (item :freq) :oct-mult oct-mult :dur (item :dur))))
+  (doseq [item gong-data] (gong :freq (item :freq) :oct-mult oct-mult :dur (item :dur))))
 
 (definst pitch-perc [cf 2000 amp 3.0 dur 1]
          (let [source (white-noise)
@@ -58,5 +62,8 @@
                  {:freq (midi->hz 76) :dur 5}]]
   (section1 nome gong-data))
 (let [lowest-gong-midi 70
-      gong-data (map #(identity { :freq (midi->hz (+ lowest-gong-midi %)) :dur 8 }) (take 5 (range)))]
+      durs [8 6 10 12 5]
+      freqs (map #(midi->hz (+ lowest-gong-midi %)) (range))
+      all-data (map vector (repeat :freq) freqs (repeat :dur) durs)
+      gong-data (map #(apply hash-map %) all-data)]
   (section1 nome gong-data))
