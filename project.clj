@@ -6,4 +6,5 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [overtone "0.10-SNAPSHOT"]
                  [leipzig "0.9.0"]
-                 [org.clojure/math.numeric-tower "0.0.4"]])
+                 [org.clojure/math.numeric-tower "0.0.4"]
+                 [org.clojure/core.logic "0.8.10"]])
