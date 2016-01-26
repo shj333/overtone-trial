@@ -99,5 +99,5 @@
 
 
 ; Section 5.2 Waveshaping
-; See berwickhheights.tour-ugens.distortion for a wave shaping example using
+; See berwickheights.tour-ugens.distortion for a wave shaping example using
 ; "shaper" and chebyshev polynomials
