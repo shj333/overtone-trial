@@ -2,13 +2,23 @@
 
 (def pitch-names [:C :Db :D :Eb :E :F :Gb :G :Ab :A :Bb :B])
 (def pitch-nums {:C 0 :Db 1 :D 2 :Eb 3 :E 4 :F 5 :Gb 6 :G 7 :Ab 8 :A 9 :Bb 10 :B 11})
-
-(defn transpose-pitch [pitch level] (mod (+ pitch level) 12))
-(defn transpose [set level] (map #(transpose-pitch % level) set))
-(defn transpose-many [set levels] (map #(transpose set %) levels))
-
 (defn numeric-set [set] (if (keyword? (first set)) (map pitch-nums set) set))
 (defn named-set [set] (if (keyword? (first set)) set (map pitch-names set)))
+
+
+(defn apply-one [set level f] (map #(f % level) set))
+(defn apply-many [set levels f] (map #(f set %) levels))
+
+(defn transpose-pitch [pitch level] (mod (+ pitch level) 12))
+(defn transpose [set level] (apply-one set level transpose-pitch))
+(defn transpose-many [set levels] (apply-many set levels transpose))
+
+(defn invert-pitch [pitch level] (mod (+ (- 12 pitch) level) 12))
+(defn invert [set level] (apply-one set level invert-pitch))
+(defn invert-many [set levels] (apply-many set levels invert))
+
+(defn retro [set level] (-> (transpose set level) reverse))
+(defn retro-many [set levels] (map #(retro set %) levels))
 
 (defn boulez-multi [set1 set2]
   (let [set1-num (numeric-set set1)
