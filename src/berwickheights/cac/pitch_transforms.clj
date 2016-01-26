@@ -1,4 +1,4 @@
-(ns berwickheights.pitch-transforms)
+(ns berwickheights.cac.pitch-transforms)
 
 (def pitch-names [:C :Db :D :Eb :E :F :Gb :G :Ab :A :Bb :B])
 (def pitch-nums {:C 0 :Db 1 :D 2 :Eb 3 :E 4 :F 5 :Gb 6 :G 7 :Ab 8 :A 9 :Bb 10 :B 11})
@@ -30,24 +30,17 @@
         distinct
         sort)))
 
-; From Boulez On Music Today, page 40
-(def example-multi-src-set [:Ab :C :A :B])
-(def example-multi-parts [[:D :F :Eb] [:Bb :Db] example-multi-src-set [:E :G] [:Gb]])
-(defn boulez-example [set transpose-level]
-  (-> (boulez-multi set example-multi-src-set)
-      (transpose transpose-level)
-      named-set))
-(map #(boulez-example % 6) example-multi-parts)
-(map #(boulez-example % 9) example-multi-parts)
-(map #(boulez-example % 7) example-multi-parts)
+(defn gen-pitch-octave [pc octave-map] (-> (name (pitch-names pc)) (str (octave-map pc)) keyword))
+(defn map-set-to-octaves
+  "Given a set of pitch classes (either numeric or named pitch classes) and an octave map,
+  generates a sequence of octave-placed pitches as named pitches. The octave map is a
+  list that maps each numeric pitch class to the appropriate octave where 4 represents
+  the octave starting on middle C (C4 is middle C).
 
-
-(defn map-pitch-to-freq [pc pitch-oct-map]
-  (let [midi (+ 60 pc)]
-    (+ midi (* 12 (pitch-oct-map pc)))))
-
-(defn map-set-to-freq [set pitch-oct-map]
+  Examples:
+  (def pitch-oct-map [4 5 3 6 2 7 1 4 5 2 1 8])
+  (map-set-to-octaves [0 1 2] pitch-oct-map) => (:C4 :Db5 :D3)
+  (map-set-to-octaves [:C :Db :D] pitch-oct-map) => (:C4 :Db5 :D3)"
+  [set octave-map]
   (let [set-num (numeric-set set)]
-    (map #(map-pitch-to-freq % pitch-oct-map) set-num)))
-
-(def pitch-oct-map1 [0 1 -1 2 -2 3 -3 0 1 -2 -3 -4])
+    (map #(gen-pitch-octave % octave-map) set-num)))
