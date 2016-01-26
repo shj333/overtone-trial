@@ -1,5 +1,5 @@
 (ns berwickheights.cac.examples.boulez-on-music-today
-  (require [berwickheights.cac.pitch-transforms :as pt]))
+  (:require [berwickheights.cac.pitch-transforms :as pt]))
 
 ; From Boulez On Music Today, page 40
 (def example-multi-src-set [:Ab :C :A :B])
