@@ -31,13 +31,19 @@
 
 (defn transform
   "Transforms the given pitch class set by the given interval using either transposition or inversion
-  depending on the given function (transpose or invert). Returns the transformed pitch class set."
+  depending on the given function (transpose or invert). Returns the transformed pitch class set.
+
+  Example:
+  (transform [0 1 3] 6 transpose) => (6 7 9)"
   [pc-set interval f]
   (map f pc-set (repeat interval)))
 
 (defn transform-many
   "Transforms the given pitch class set by the given intervals using either transposition or inversion
-  depending on the given function (transpose or invert). Returns a sequence of transformed pitch class sets."
+  depending on the given function (transpose or invert). Returns a sequence of transformed pitch class sets.
+
+  Example:
+  (transform-many [0 1 3] [2 4 6] transpose) => ((2 3 5) (4 5 7) (6 7 9))"
   [pc-set intervals f]
   (map transform (repeat pc-set) intervals (repeat f)))
 
