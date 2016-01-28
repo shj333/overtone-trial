@@ -6,9 +6,9 @@
 (def example-multi-parts [[:D :F :Eb] [:Bb :Db] example-multi-src-set [:E :G] [:Gb]])
 (defn boulez-example [set transpose-level]
   (-> (pt/boulez-multi set example-multi-src-set)
-      (pt/transpose transpose-level)
+      (pt/transform transpose-level pt/transpose)
       pt/named-set))
 
-(map #(boulez-example % 6) example-multi-parts)
-(map #(boulez-example % 9) example-multi-parts)
-(map #(boulez-example % 7) example-multi-parts)
+(map boulez-example example-multi-parts (repeat 6))
+(map boulez-example example-multi-parts (repeat 9))
+(map boulez-example example-multi-parts (repeat 7))

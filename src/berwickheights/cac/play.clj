@@ -9,7 +9,7 @@
 
   Example:
   (def pitch-oct-map [4 5 3 6 2 7 1 4 5 2 1 8])
-  (play-set [0 1 3] pitch-oct-map)
+  (play-set piano note [0 1 3] pitch-oct-map) => Plays pitch complex [C4 Db5 Eb6] using Overtone piano and note functions
   "
   [inst note-func set octave-map]
   (let [notes (map note-func (pt/map-set-to-octaves set octave-map))]

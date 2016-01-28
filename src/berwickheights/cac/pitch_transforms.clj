@@ -1,36 +1,79 @@
 (ns berwickheights.cac.pitch-transforms)
 
+; Map pitch classes to pitch name keywords (and vice-versa via indexOf)
 (def pitch-names [:C :Db :D :Eb :E :F :Gb :G :Ab :A :Bb :B])
-(def pitch-nums {:C 0 :Db 1 :D 2 :Eb 3 :E 4 :F 5 :Gb 6 :G 7 :Ab 8 :A 9 :Bb 10 :B 11})
-(defn numeric-set [set] (if (keyword? (first set)) (map pitch-nums set) set))
-(defn named-set [set] (if (keyword? (first set)) set (map pitch-names set)))
+
+(defn numeric-set
+  "Converts given set to set of pitch class numbers. If the set is already using pitch class numbers, then
+  returns original set. Otherwise, set is converted to a set of numbers from 0-11 representing pitch
+  classes."
+  [set]
+  (if (keyword? (first set))
+    (map #(.indexOf pitch-names %) set)
+    set))
+
+(defn named-set
+  "Converts given set to set of pitch name keywords. If the set is already using pitch name, then returns
+  original set. Otherwise, set is converted to a set of keywords representing the pitches."
+  [set]
+  (if (keyword? (first set)) set (map pitch-names set)))
 
 
-(defn apply-one [set level f] (map #(f % level) set))
-(defn apply-many [set levels f] (map #(f set %) levels))
+(defn transpose
+  "Transpose the given pitch class by the given interval. Returns the transposed pitch class."
+  [pc interval]
+  (mod (+ pc interval) 12))
 
-(defn transpose-pitch [pitch level] (mod (+ pitch level) 12))
-(defn transpose [set level] (apply-one set level transpose-pitch))
-(defn transpose-many [set levels] (apply-many set levels transpose))
+(defn invert
+  "Inverts the given pitch class by the given interval. Returns the inverted pitch class."
+  [pc interval]
+  (mod (+ (- 12 pc) interval) 12))
 
-(defn invert-pitch [pitch level] (mod (+ (- 12 pitch) level) 12))
-(defn invert [set level] (apply-one set level invert-pitch))
-(defn invert-many [set levels] (apply-many set levels invert))
+(defn transform
+  "Transforms the given pitch class set by the given interval using either transposition or inversion
+  depending on the given function (transpose or invert). Returns the transformed pitch class set."
+  [pc-set interval f]
+  (map f pc-set (repeat interval)))
 
-(defn retro [set level] (-> (transpose set level) reverse))
-(defn retro-many [set levels] (map #(retro set %) levels))
+(defn transform-many
+  "Transforms the given pitch class set by the given intervals using either transposition or inversion
+  depending on the given function (transpose or invert). Returns a sequence of transformed pitch class sets."
+  [pc-set intervals f]
+  (map transform (repeat pc-set) intervals (repeat f)))
 
-(defn boulez-multi [set1 set2]
-  (let [set1-num (numeric-set set1)
-        set2-num (numeric-set set2)
+(defn retro
+  "Convenience function that retrogrades the given pitch class set after transposing it using the given
+  interval. Returns the retrograded pitch class set."
+  [pc-set interval]
+  (reverse (transform pc-set interval transpose)))
+
+(defn retro-many
+  "Convenience function that retrogrades the given pitch class set after transposing it using the given
+  intervals. Returns a sequence of the retrograded pitch class sets."
+  [pc-set intervals]
+  (map retro (repeat pc-set) intervals))
+
+(defn boulez-multi
+  "Boulez pitch multiplication using the two given sets. See \"Boulez on Music Today\"
+  and http://www.artsjournal.com/postclassic/2010/06/how_to_care_how_it_was_made.html"
+  [pc-set1 pc-set2]
+  (let [set1-num (numeric-set pc-set1)
+        set2-num (numeric-set pc-set2)
         first-pitch (first set2-num)
-        set2-zeroed (map #(- % first-pitch) set2-num)]
-    (-> (transpose-many set1-num set2-zeroed)
-        flatten
-        distinct
-        sort)))
+        set2-zeroed (map - set2-num (repeat first-pitch))]
+    (-> (transform-many set1-num set2-zeroed transpose)
+        flatten)))
 
-(defn gen-pitch-octave [pc octave-map] (-> (name (pitch-names pc)) (str (octave-map pc)) keyword))
+(defn gen-pitch
+  "Generates a pitch keyword from the given pitch class and pitch octave map (an array indexed
+  by pitch class that gives the octave to use for each pitch class).
+
+  Example:
+  (def pitch-oct-map [4 5 3 6 2 7 1 4 5 2 1 8])
+  (gen-pitch 2 pitch-oct-map) => :D3"
+  [pc octave-map]
+  (keyword (str (name (pitch-names pc)) (octave-map pc))))
+
 (defn map-set-to-octaves
   "Given a set of pitch classes (either numeric or named pitch classes) and an octave map,
   generates a sequence of octave-placed pitches as named pitches. The octave map is a
@@ -41,6 +84,6 @@
   (def pitch-oct-map [4 5 3 6 2 7 1 4 5 2 1 8])
   (map-set-to-octaves [0 1 2] pitch-oct-map) => (:C4 :Db5 :D3)
   (map-set-to-octaves [:C :Db :D] pitch-oct-map) => (:C4 :Db5 :D3)"
-  [set octave-map]
-  (let [set-num (numeric-set set)]
-    (map #(gen-pitch-octave % octave-map) set-num)))
+  [pc-set octave-map]
+  (let [set-num (numeric-set pc-set)]
+    (map gen-pitch set-num (repeat octave-map))))
