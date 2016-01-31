@@ -1,6 +1,10 @@
-(ns berwickheights.notes-metalevel.chaos
+(ns berwickheights.notes-metalevel.chapter17
   (:require [berwickheights.cac.play :as play])
   (:use overtone.core))
+
+;
+; Notes from the Metalevel, Chapter 17: Chaos
+;
 
 (defn logistic-map
   "Returns lazy seq according to y(s, c) = c * y * (1 - y). From Chapter 17 of Notes from the Metalevel."
