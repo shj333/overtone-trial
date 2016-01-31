@@ -80,7 +80,7 @@
   [pc octave-map]
   (keyword (str (name (pitch-names pc)) (octave-map pc))))
 
-(defn map-set-to-octaves
+(defn map-pcs-to-pitches
   "Given a set of pitch classes (either numeric or named pitch classes) and an octave map,
   generates a sequence of octave-placed pitches as named pitches. The octave map is a
   list that maps each numeric pitch class to the appropriate octave where 4 represents
