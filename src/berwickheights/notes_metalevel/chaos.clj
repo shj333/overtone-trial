@@ -1,28 +1,22 @@
 (ns berwickheights.notes-metalevel.chaos
-  (:use overtone.live))
+  (:require [berwickheights.cac.play :as play])
+  (:use overtone.core))
 
 (defn logistic-map
   "Returns lazy seq according to y(s, c) = c * y * (1 - y). From Chapter 17 of Notes from the Metalevel."
   ([chaos] (logistic-map (rand 1.0) chaos))
-  ([seed chaos]
-    (lazy-seq
-      (let [new-val (* seed chaos (- 1 seed))]
-        (cons new-val (logistic-map new-val chaos))))))
+  ([prev-val chaos]
+   (lazy-seq
+     (let [new-val (* chaos prev-val (- 1 prev-val))]
+       (cons new-val (logistic-map new-val chaos))))))
 
-(defn lazy-freqs
-  "Given a lazy seq, returns the next count freqs in sequence"
-  [lazy-s low high low-freq high-freq count]
-  (map #(overtone.algo.scaling/scale-range % low high low-freq high-freq) (take count lazy-s)))
+(defn play-logistic-map
+  "Play n notes from logistic map sequence using the given instrument and metronome. The
+  logistic map generates numbers using the given chaos constant. Notes are mapped from the
+  logistic map sequence by scaling them betwen the given low and high."
+  ([n chaos low high nome instr instr-vals] (play-logistic-map n chaos low high nome instr instr-vals 0.125))
+  ([n chaos low high nome instr instr-vals beat-dur]
+   (let [seq (map #(scale-range % 0 1.0 low high) (take n (logistic-map chaos)))]
+     (play/play-sequence n seq nome instr instr-vals beat-dur))))
 
-(def logistic-map-freqs (lazy-freqs (logistic-map 3.7) 0 1.0 40 100 1000))
-
-(definst sawzall [freq 440 amp 0.2]
-  (* amp (env-gen (perc 0.1 0.8) :action FREE) (saw freq)))
-
-(defn play-freqs [t beat-dur freqs amp]
-  (when freqs
-    (let [next-beat (+ t beat-dur)]
-      (at t (sawzall (first freqs) amp))
-      (apply-by next-beat #'play-freqs next-beat beat-dur (next freqs) amp []))))
-
-(play-freqs (now) 50 logistic-map-freqs 0.2)
+; (play-logistic-map 100 3.7 21 109 nome pno [:sustain 0.1] 0.125)
