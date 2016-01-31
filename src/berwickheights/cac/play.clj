@@ -29,9 +29,19 @@
                 [2.1 [:cf 1300 :amp 6.0]]]]
     (play-phrase pitch-perc phrase nome 0.6))) => Plays six events in a phrase, the entire phrase offset by 0.6 of a beat"
   ([instr phrase nome] (play-phrase instr phrase nome 0))
-  ([instr phrase nome beat-offset]
-   (let [beat (+ (nome) beat-offset)]
+  ([instr phrase nome init-beat-offset]
+   (let [beat (+ (nome) init-beat-offset)]
      (doseq [item phrase]
        (let [[beat-offset instr-data] item]
          (ot/at (nome (+ beat-offset beat)) (apply instr instr-data)))))))
+
+(defn play-sequence
+  "Play n notes from given sequence using the given instrument, instrument values and metronome.
+  Each note has a duration according to given beat-dur (default 1/8 second)."
+  ([n seq nome instr instr-vals] (play-sequence n seq nome instr instr-vals 0.125))
+  ([n seq nome instr instr-vals beat-dur]
+   (let [beat (nome)]
+     (doseq [[idx val] (map-indexed vector seq)]
+       (let [beat-offset (* idx beat-dur)]
+         (ot/at (nome (+ beat-offset beat)) (apply instr val instr-vals)))))))
 
