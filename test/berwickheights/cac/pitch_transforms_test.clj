@@ -2,6 +2,46 @@
   (:require [clojure.test :refer :all]
             [berwickheights.cac.pitch-transforms :as pt]))
 
+(def test-set [0 1 3 4 5 6])
+
+(deftest named-sets
+  (testing "Numeric to named sets"
+    (is (= '(:C :Db :Eb :E :F :Gb) (pt/named-set test-set))))
+  (testing "Named to numeric sets"
+    (is (= (pt/numeric-set '(:C :Db :Eb :E :F :Gb)) test-set)))
+  (testing "Multiple operations"
+    (is (= (pt/numeric-set (pt/named-set test-set)) test-set))))
+
+(deftest transposition
+  (testing "Transposition of pc sets"
+    (let [expected '(5 6 8 9 10 11)
+          actual (pt/transform test-set 5 pt/transpose)]
+      (is (= expected actual)))
+    (let [expected '((1 2 4 5 6 7) (3 4 6 7 8 9) (5 6 8 9 10 11))
+          actual (pt/transform-many test-set [1 3 5] pt/transpose)]
+      (is (= expected actual)))))
+
+(deftest inversion
+  (testing "Inversion of pc sets"
+    (let [expected '(0 11 9 8 7 6)
+          actual (pt/transform test-set 0 pt/invert)]
+      (is (= expected actual)))
+    (let [expected '((1 0 10 9 8 7) (3 2 0 11 10 9) (5 4 2 1 0 11))
+          actual (pt/transform-many test-set [1 3 5] pt/invert)]
+      (is (= expected actual)))))
+
+(deftest retrograde
+  (testing "Retrograde of pc sets"
+    (let [expected '(6 5 4 3 1 0)
+          actual (pt/retro test-set 0)]
+      (is (= expected actual)))
+    (let [expected '(8 7 6 5 3 2)
+          actual (pt/retro test-set 2)]
+      (is (= expected actual)))
+    (let [expected '((6 5 4 3 1 0) (8 7 6 5 3 2))
+          actual (pt/retro-many test-set [0 2])]
+      (is (= expected actual)))))
+
 (def example-multi-src-set [:Ab :C :A :B])
 (def example-multi-parts [[:D :F :Eb] [:Bb :Db] example-multi-src-set [:E :G] [:Gb]])
 (defn boulez-example [set transpose-level]
@@ -10,7 +50,7 @@
       pt/named-set))
 
 (deftest boulez-multi-test
-  (testing "Boulez multiplication not working"
+  (testing "Boulez multiplication"
     (let [expected '((:Ab :B :A :C :Eb :Db :A :C :Bb :B :D :C)
                       (:E :G :Ab :B :F :Ab :G :Bb)
                       (:D :Gb :Eb :F :Gb :Bb :G :A :Eb :G :E :Gb :F :A :Gb :Ab)
@@ -33,13 +73,9 @@
           actual (map boulez-example example-multi-parts (repeat 7))]
       (is (= expected actual)))))
 
-(deftest transposition
-  (testing "Transposition not working"
-        (let [expected '(5 6 8 9 10 11)
-              actual (pt/transform [0 1 3 4 5 6] 5 pt/transpose)]
-          (is (= expected actual)))))
-
-
-
-
-
+(def octave-map [1 2 3 4 5 6 7 8 1 2 3 4])
+(deftest map-pcs-to-pitches-test
+  (testing "Mapping pc sets to pitches"
+    (let [expected '(:C1 :Db2 :Eb4 :E5 :F6 :Gb7)
+          actual (pt/map-pcs-to-pitches test-set octave-map)]
+      (is (= expected actual)))))
