@@ -36,12 +36,12 @@
          (ot/at (nome (+ beat-offset beat)) (apply instr instr-data)))))))
 
 (defn play-sequence
-  "Play n notes from given sequence using the given instrument, instrument values and metronome.
-  Each note has a duration according to given beat-dur (default 1/8 second)."
-  ([n seq nome instr instr-vals] (play-sequence n seq nome instr instr-vals 0.125))
-  ([n seq nome instr instr-vals beat-dur]
-   (let [beat (nome)]
-     (doseq [[idx val] (map-indexed vector seq)]
+  "Play n notes from given sequence of values using the given instrument, instrument values and metronome. Each note has
+  a duration according to given beat-dur. Notes are mapped from the sequence by scaling the numbers betwen the given
+  low and high."
+  [n seq low high scaled-low scaled-high nome instr instr-vals beat-dur]
+   (let [beat (nome)
+         seq (map #(ot/scale-range % low high scaled-low scaled-high) (take n seq))]
+     (doseq [[idx val] (map-indexed vector (take n seq))]
        (let [beat-offset (* idx beat-dur)]
-         (ot/at (nome (+ beat-offset beat)) (apply instr val instr-vals)))))))
-
+         (ot/at (nome (+ beat-offset beat)) (apply instr val instr-vals))))))
