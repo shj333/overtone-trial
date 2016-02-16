@@ -1,4 +1,5 @@
-(ns berwickheights.cac.pitch-transforms)
+(ns berwickheights.cac.pitch-transforms
+  (:require [clojure.math.combinatorics :as combo]))
 
 ; Map pitch classes to pitch name keywords (and vice-versa via indexOf)
 (def pitch-names [:C :Db :D :Eb :E :F :Gb :G :Ab :A :Bb :B])
@@ -93,3 +94,37 @@
   [pc-set octave-map]
   (let [set-num (numeric-set pc-set)]
     (map gen-pitch set-num (repeat octave-map))))
+
+(defn intervals
+  [pc-set]
+  (->> (numeric-set pc-set)
+       cycle
+       (partition 2 1)
+       (take (count pc-set))
+       (map #(- (apply - %)))))
+
+(defn interval-vector
+  [pc-set]
+  (letfn [(interval-for-vector [vals]
+            (let [interval (Math/abs (apply - vals))]
+              (if (> interval 6)
+                (- 12 interval)
+                interval)))]
+    (->> (combo/combinations (numeric-set pc-set) 2)
+         (map interval-for-vector)
+         frequencies
+         sort)))
+
+(defn start-with-pitch
+  [the-pitch pc-set]
+  (transform pc-set (- the-pitch (first pc-set)) transpose))
+
+(defn rotate
+  [pc-set]
+  (let [count-pcs (count pc-set)
+        num-pc-set (numeric-set pc-set)
+        first-pc (first num-pc-set)]
+    (->> (cycle num-pc-set)
+         (partition count-pcs 1)
+         (take count-pcs)
+         (map #(start-with-pitch first-pc %)))))

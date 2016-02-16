@@ -79,3 +79,26 @@
     (let [expected '(:C1 :Db2 :Eb4 :E5 :F6 :Gb7)
           actual (pt/map-pcs-to-pitches test-set octave-map)]
       (is (= expected actual)))))
+
+(deftest interval-test
+  (testing "Finding intervals in pc set"
+    (let [expected '(3 2 4 -9)
+          actual (pt/intervals [0 3 5 9])]
+      (is (= expected actual)))))
+
+(deftest interval-vector-test
+  (testing "Finding interval vector for pc set"
+    (let [expected '([1 2] [2 2] [3 3] [4 1] [5 1] [6 1])
+          actual (pt/interval-vector [3 11 0 9 2])]
+      (is (= expected actual)))))
+
+(deftest rotation-test
+  (testing "Rotating pc sets"
+    (let [expected '((:Eb :A :C :B :E :D)
+                      (:Eb :Gb :F :Bb :Ab :A)
+                      (:Eb :D :G :F :Gb :C)
+                      (:Eb :Ab :Gb :G :Db :E)
+                      (:Eb :Db :D :Ab :B :Bb)
+                      (:Eb :E :Bb :Db :C :F))
+          actual (->> (pt/rotate (first expected)) (map pt/named-set))]
+      (is (= expected actual)))))
