@@ -96,6 +96,10 @@
     (map gen-pitch set-num (repeat octave-map))))
 
 (defn intervals
+  "Returns the intervals between the pcs in the given pc set.
+
+  Example:
+  (intervals [0 3 5 9]) => (3 2 4 -9)"
   [pc-set]
   (->> (numeric-set pc-set)
        cycle
@@ -104,6 +108,11 @@
        (map #(- (apply - %)))))
 
 (defn interval-vector
+  "Returns the interval vector for the given pc set. An interval vector has the cardinalities
+  of intervals in the pc set.
+
+  Example:
+  (interval-vector [3 11 0 9 2]) => ([1 2] [2 2] [3 3] [4 1] [5 1] [6 1])"
   [pc-set]
   (letfn [(interval-for-vector [vals]
             (let [interval (Math/abs (apply - vals))]
@@ -115,16 +124,38 @@
          frequencies
          sort)))
 
-(defn start-with-pitch
-  [the-pitch pc-set]
-  (transform pc-set (- the-pitch (first pc-set)) transpose))
+(defn start-with-pc
+  "Returns a pc set that starts with the given pc but otherwise has the same intervals as the
+  given pc set.
+
+  Example:
+
+  (start-with-pc 3 [0 3 5 8]) => (3 6 8 11)
+  (start-with-pc 6 [0 3 5 8]) => (6 9 11 2)"
+  [start-pc pc-set]
+  (let [set-num (numeric-set pc-set)
+        first-pc (first set-num)]
+    (transform set-num (- start-pc first-pc) transpose)))
 
 (defn rotate
+  "Rotates the given pc set through all the pcs, starting each rotation with the first pc in the given
+  pc set.
+
+  Example:
+
+  (->> (rotate [:Eb :A :C :B :E :D])
+       (map named-set)) =>
+    ((:Eb :A :C :B :E :D)
+    (:Eb :Gb :F :Bb :Ab :A)
+    (:Eb :D :G :F :Gb :C)
+    (:Eb :Ab :Gb :G :Db :E)
+    (:Eb :Db :D :Ab :B :Bb)
+    (:Eb :E :Bb :Db :C :F))"
   [pc-set]
   (let [count-pcs (count pc-set)
-        num-pc-set (numeric-set pc-set)
-        first-pc (first num-pc-set)]
-    (->> (cycle num-pc-set)
+        set-num (numeric-set pc-set)
+        first-pc (first set-num)]
+    (->> (cycle set-num)
          (partition count-pcs 1)
          (take count-pcs)
-         (map #(start-with-pitch first-pc %)))))
+         (map #(start-with-pc first-pc %)))))
