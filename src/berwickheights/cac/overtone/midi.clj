@@ -24,7 +24,7 @@
 
   Example:
 
-  (defn my-hdlr [e] (println "The event is " e))
+  (defn my-hdlr [e] (println \"The event is \" e))
   (def my-id (on-event my-hdlr))
   (off-event my-id)"
   [id]
