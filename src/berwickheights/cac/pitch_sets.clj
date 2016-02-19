@@ -1,5 +1,6 @@
 (ns berwickheights.cac.pitch-sets
-  (:require [berwickheights.cac.overtone.midi :as midi]))
+  (:require [berwickheights.cac.overtone.midi :as midi]
+            [berwickheights.cac.db.monger.pc-set :as db]))
 
 (defonce ^:private pc-sets* (atom {}))
 
@@ -26,6 +27,13 @@
                 (set-pc midi-note))))]
     (def hdlr-id (midi/on-event handle-note))
     (println "Waiting for midi keyboard events -- midi 36 or lower to stop")))
+
+(defn load-pc-set
+  [set-name]
+  (let [pc-set-info (db/get-pc-set set-name)]
+    (if (nil? pc-set-info)
+      (println (str "PC set '" set-name "' is not in database"))
+      (swap! pc-sets* assoc set-name (:pc-set pc-set-info)))))
 
 (defn get-pc-set
   "Retrieves a pc set previously defined by call to def-pc-set. Returns nil if a pc set with the
