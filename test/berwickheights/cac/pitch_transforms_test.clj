@@ -102,3 +102,9 @@
                       (:Eb :E :Bb :Db :C :F))
           actual (->> (pt/rotate (first expected)) (map pt/named-set))]
       (is (= expected actual)))))
+
+(deftest osciallation-test
+  (testing "Oscillating pc sets"
+    (let [expected '(0 1 2 2 1 0 0 1 2 2 1 0)
+          actual (take 12 (pt/oscillate [0 1 2]))]
+      (is (= expected actual)))))
