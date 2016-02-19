@@ -1,7 +1,7 @@
 (ns berwickheights.cac.overtone.midi
   (:require [overtone.core :as ot]))
 
-(defonce ^:private last-handler-id* (atom 0))
+(defonce ^:private last-handler-id (atom 0))
 (defonce ^:private this-ns (str *ns*))
 (defn- get-handler-name [id] (keyword this-ns (str "midi-event-hdlr-" id)))
 
@@ -15,7 +15,7 @@
   (def my-id (on-event my-hdlr))
   (off-event my-id)"
   [handler]
-  (let [id (swap! last-handler-id* inc)]
+  (let [id (swap! last-handler-id inc)]
     (ot/on-event [:midi :note-on] handler (get-handler-name id))
     id))
 
