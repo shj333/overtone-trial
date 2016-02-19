@@ -159,3 +159,11 @@
          (partition count-pcs 1)
          (take count-pcs)
          (map #(start-with-pc first-pc %)))))
+
+(defn oscillate
+  "Returns a lazy sequence of oscillations of the given pc set.
+
+  Example:
+  (take 12 (oscillate [0 1 3])) => (0 1 3 3 1 0 0 1 3 3 1 0)"
+  [pc-set]
+  (cycle (concat pc-set (reverse pc-set))))
