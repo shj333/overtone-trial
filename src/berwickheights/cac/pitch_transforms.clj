@@ -138,8 +138,8 @@
     (transform set-num (- start-pc first-pc) transpose)))
 
 (defn rotate
-  "Rotates the given pc set through all the pcs, starting each rotation with the first pc in the given
-  pc set.
+  "Rotates the given pc set through all the pcs, starting each rotation with the
+  first pc in the given pc set.
 
   Example:
 
