@@ -1,4 +1,4 @@
-(ns berwickheights.core-logic-trial
+(ns berwickheights.experiments.core-logic
   (:refer-clojure :exclude [==])
   (:use clojure.core.logic))
 
