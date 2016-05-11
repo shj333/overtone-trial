@@ -44,3 +44,31 @@
 (def boop-inst (my-boop [:tail producer-grp] pass-thru-bus))
 (def boop-inst (my-boop [:tail producer-grp] fx-bus))
 (stop)
+
+
+
+;
+; Stereo Bus Test
+;
+(defsynth my-reverb2 [in-bus 0 out-bus 0 mix 0.5 room 0.7 damp 0.2]
+          (let [in (in:ar in-bus 2)]
+            (out:ar out-bus (free-verb2 (nth in 0) (nth in 1) mix room damp))))
+
+(defsynth my-boop2 [out-bus 0 pos 0.0]
+          (let [sig (* (env-gen (env-perc :attack 0.01 :release 0.2 :level 1 :curve -4) :action FREE) (sin-osc))]
+            (out:ar out-bus (pan2 sig pos 1.0))))
+
+(do
+  (defonce fx2-bus (audio-bus))
+  (defonce fx-main2-grp (group "fx test main stereo"))
+  (defonce producer2-grp (group "sound gen stereo" :head fx-main2-grp))
+  (defonce fx2-grp (group "fx stereo" :after producer2-grp)))
+(pp-node-tree)
+
+(def reverb2-inst (my-reverb2 [:tail fx2-grp] fx2-bus))
+
+(def boop2-inst (my-boop2 [:tail producer2-grp] fx2-bus -1))
+(def boop2-inst (my-boop2 [:tail producer2-grp] fx2-bus 0))
+(def boop2-inst (my-boop2 [:tail producer2-grp] fx2-bus 1))
+(stop)
+
