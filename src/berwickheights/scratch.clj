@@ -16,3 +16,15 @@
 ; Curvature of percussive envelope
 (demo (* (env-gen (env-perc :attack 0.01 :release 2 :level 1 :curve -4)) (sin-osc)))
 (demo (* (env-gen (env-perc :attack 0.01 :release 2 :level 1 :curve -8)) (sin-osc)))
+
+
+; Some random octave maps for BHS CAC
+(let [oct-map1 [5 4 3 4  2 5 4 3  4 4 5 3]
+      oct-map2 [5 3 5 4  5 2 4 3  3 4 2 3]
+      oct-map3 [5 3 5 4  5 2 4 3  1 2 5 3]]
+  (def oct-maps (pt/oscillate [oct-map1 oct-map2 oct-map3])))
+
+(let [oct-map1 [4 5 3 4  3 5 4 4  4 3 5 3]
+      oct-map2 [4 3 5 4  5 3 4 3  3 3 2 3]]
+  (def oct-maps (pt/oscillate [oct-map1 oct-map2])))
+
