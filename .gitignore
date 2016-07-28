@@ -9,7 +9,8 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
-.idea
-*.iml
 /lily
-
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/replstate.xml
+.DS_Store
