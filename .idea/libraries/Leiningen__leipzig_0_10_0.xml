@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: leipzig:0.10.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/leipzig/leipzig/0.10.0/leipzig-0.10.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
