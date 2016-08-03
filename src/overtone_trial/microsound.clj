@@ -43,11 +43,11 @@
   [num-instances length]
   (letfn [(make-one-point
             [sinc-num x length]
-            (let [val (* (num-lin-lin x 0 (- length 1) (- 0 Math/PI) Math/PI) sinc-num)]
+            (let [val (* (num-lin-lin x 0 (dec length) (- 0 Math/PI) Math/PI) sinc-num)]
               (/ (Math/sin val) val)))
           (make-sinc [sinc-num length]
             (map #(make-one-point sinc-num % length) (range length)))]
-    (map #(make-sinc (+ % 1) length) (range num-instances))))
+    (map #(make-sinc (inc %) length) (range num-instances))))
 
 (let [env (last (make-sincs 10 400))
       length (count env)]
@@ -93,21 +93,22 @@
                this-freq (+ freq freq-dev)]
            (out:ar out (* amp (grain-sin:ar 2 trigger, grain-dur this-freq pan env-buf)))))
 
-(definst sync-trigger [out 0 density 1] (out:kr out [(impulse:kr density) (lf-noise0:kr density)]))
-(definst async-trigger [out 0 density 1] (out:kr out [(dust:kr density) (lf-noise0:kr density)]))
-(definst coin-trigger [out 0 density 1 prob 0.5] (out:kr out [(coin-gate:kr prob (impulse:kr density)) (lf-noise0:kr density)]))
+(def trigger-defs {:sync (definst sync-trigger [out 0 density 1] (out:kr out [(impulse:kr density) (lf-noise0:kr density)]))
+                   :async (definst async-trigger [out 0 density 1] (out:kr out [(dust:kr density) (lf-noise0:kr density)]))
+                   :coin (definst coin-trigger [out 0 density 1 prob 0.5] (out:kr out [(coin-gate:kr prob (impulse:kr density)) (lf-noise0:kr density)]))})
 
-(defn make-trig
-  [trig-f]
-  (let [bus (control-bus 2)]
-    [bus (trig-f :out bus)]))
+(def trigger-busses (into {} (for [key [:sync :async :coin]] [key (control-bus 2)])))
+(def triggers (into {} (for [[key bus] trigger-busses] [key ((key trigger-defs) :out bus)])))
+(for [[k v] triggers] [k (class v)])
 
-(def trigger-busses (into {} (map #(identity [% (control-bus 2)]) [:sync :async :coin])))
-(def triggers (into {} (map #(identity [% (ma)]) ))
 
-(def grain-inst (my-grain-sin :env-buf (buffer-id (:perc1 env-bufs)) :trigger-bus trigger-bus))
+(def grain-inst (my-grain-sin :env-buf (buffer-id (:perc1 env-bufs))
+                              :trigger-bus (:sync trigger-busses)
+                              :amp 0.2))
+(ctl grain-inst :trigger-bus (:sync trigger-busses))
 (ctl grain-inst :env-buf (buffer-id (:sine env-bufs)))
 (ctl grain-inst :env-buf (buffer-id (:perc2 env-bufs)))
 (ctl grain-inst :env-buf (buffer-id (:expodec env-bufs)))
 (ctl grain-inst :env-buf (buffer-id (:rexpodec env-bufs)))
+
 (stop)
