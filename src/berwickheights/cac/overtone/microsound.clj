@@ -24,14 +24,14 @@
   (into {} (for [idx (range 1 (inc num-instances))] [(keyword (str "sinc" idx)) (make-sinc idx length)])))
 
 
-(def env-data {:sine        (ot-env/env-sine)
-               :quasi-guass (ot-env/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :sin)
-               :linear      (ot-env/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :lin)
-               :welch       (ot-env/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :welch)
-               :expodec     (ot-env/envelope [1, 0.001] [1] :exp)
-               :rexpodec    (ot-env/envelope [0.001, 1] [1] :exp)
-               :perc1       (ot-env/env-perc 0.05 0.95)
-               :perc2       (ot-env/env-perc 0.1 0.9)})
+(def env-data {:sine     (ot-env/env-sine)
+               :guass    (ot-env/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :sin)
+               :linear   (ot-env/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :lin)
+               :welch    (ot-env/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :welch)
+               :expodec  (ot-env/envelope [1, 0.001] [1] :exp)
+               :rexpodec (ot-env/envelope [0.001, 1] [1] :exp)
+               :perc1    (ot-env/env-perc 0.05 0.95)
+               :perc2    (ot-env/env-perc 0.1 0.9)})
 
 (def env-signals (merge (make-sincs 10 400)
                         (into {} (for [[k env] env-data] [k (shapes/env->signal env 400)]))))
