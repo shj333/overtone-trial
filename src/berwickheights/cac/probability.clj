@@ -27,3 +27,7 @@
 ; Test Code
 (def rand-gen (RandomDataGenerator.))
 (.nextExponential rand-gen 1.0)
+
+(defn exprand
+  [low high]
+  (* low (Math/exp (* (Math/log (/ high low)) (rand)))))
