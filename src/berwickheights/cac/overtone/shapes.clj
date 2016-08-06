@@ -114,13 +114,8 @@
     (->> (map vector (stage-levels stages) (stage-times stages) (stage-shapes stages))
          (map flatten))))
 
-; (env-stages (ot/env-sine))
-
-
 (defn env->signal
   [env length]
   (let [env-stages (env-stages env)
         ratio (/ 1.0 (- length 1))]
     (map #(gen-signal env-stages ratio %) (range length))))
-
-; (env->signal (ot/env-sine) 20)
