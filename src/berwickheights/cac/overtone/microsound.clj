@@ -91,7 +91,7 @@
   [defs bus-type]
   (let [busses (into {} (for [key (keys defs)] [key (bus-type)]))
         insts (into {} (for [[key bus] busses] [key ((key defs) :out bus)]))]
-    {:busses busses :insts insts}))
+    [busses insts]))
 
 (def core-trigger-defs {:sync      sync-trigger
                         :rand-sync sync-trigger
@@ -108,16 +108,14 @@
   ([] (make-triggers-pans {}))
   ([trigger-defs]
    (let [all-trigger-defs (merge core-trigger-defs trigger-defs)
-         trigger-result (make-busses-insts all-trigger-defs ot/control-bus)
-         triggers (:insts trigger-result)
+         [trigger-busses triggers] (make-busses-insts all-trigger-defs ot/control-bus)
          pan-defs (into {} (for [k (keys all-trigger-defs)] [k rand-pan]))
          all-pan-defs (merge core-pan-defs pan-defs)
-         pan-result (make-busses-insts all-pan-defs ot/control-bus)
-         pans (:insts pan-result)]
+         [pan-busses pans] (make-busses-insts all-pan-defs ot/control-bus)]
      (ot/ctl (:left pans) :pan -1)
      (ot/ctl (:center-left pans) :pan -0.5)
      (ot/ctl (:center pans) :pan 0)
      (ot/ctl (:center-right pans) :pan 0.5)
      (ot/ctl (:right pans) :pan 1)
      (set-density [(:rand-sync triggers) (:rand-sync pans)])
-     {:triggers trigger-result :pans pan-result})))
+     {:trigger-busses trigger-busses :triggers triggers :pan-busses pan-busses :pans pans})))
