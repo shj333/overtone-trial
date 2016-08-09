@@ -2,7 +2,7 @@
   (:use overtone.core)
   (:require [incanter core charts datasets]
             [berwickheights.cac.overtone.microsound :as micro]
-            [overtone-trial.microsound.synths]))
+            [overtone-trial.microsound.synths :as syn]))
 
 
 (let [env (:perc2 micro/env-signals)
@@ -31,11 +31,11 @@
 
 
 
-(def grain-inst (my-grain-sin [:tail producer-grp]
-                              :env-buf (:perc1 env-bufs)
-                              :trigger-bus (:sync trigger-busses)
-                              :pan-bus (:sync pan-busses)
-                              :amp 0.2))
+(def grain-inst (syn/my-grain-sin [:tail producer-grp]
+                                  :env-buf (:perc1 env-bufs)
+                                  :trigger-bus (:sync trigger-busses)
+                                  :pan-bus (:sync pan-busses)
+                                  :amp 0.2))
 
 (ctl grain-inst :trigger-bus (:rand-sync trigger-busses))
 (ctl grain-inst :trigger-bus (:sync trigger-busses))
@@ -57,51 +57,51 @@
 (ctl grain-inst :out 0)
 (kill grain-inst)
 
-(def high-bells (my-grain-sin [:tail producer-grp]
-                              :env-buf (:expodec env-bufs)
-                              :trigger-bus (:rand-sync trigger-busses)
-                              :pan-bus (:rand-sync pan-busses)
-                              :grain-dur 2.0
-                              :freq 2000
-                              :freq-dev-noise 1000
-                              :amp 0.1
-                              :out reverb-bus))
-(def low-rumble (my-grain-sin [:tail producer-grp]
-                              :env-buf (:guass env-bufs)
-                              :trigger-bus (:async trigger-busses)
-                              :pan-bus (:async pan-busses)
-                              :grain-dur 2.0
-                              :freq 100
-                              :freq-dev-noise 10
-                              :amp 0.1))
-(def glasses (my-grain-sin [:tail producer-grp]
-                           :env-buf (:sinc5 env-bufs)
-                           :trigger-bus (:rand-sync trigger-busses)
-                           :pan-bus (:rand-sync pan-busses)
-                           :grain-dur 2.0
-                           :freq 1000
-                           :freq-dev-noise 100
-                           :amp 0.02
-                           :out reverb-bus))
+(def high-bells (syn/my-grain-sin [:tail producer-grp]
+                                  :env-buf (:expodec env-bufs)
+                                  :trigger-bus (:rand-sync trigger-busses)
+                                  :pan-bus (:rand-sync pan-busses)
+                                  :grain-dur 2.0
+                                  :freq 2000
+                                  :freq-dev-noise 1000
+                                  :amp 0.1
+                                  :out reverb-bus))
+(def low-rumble (syn/my-grain-sin [:tail producer-grp]
+                                  :env-buf (:guass env-bufs)
+                                  :trigger-bus (:async trigger-busses)
+                                  :pan-bus (:async pan-busses)
+                                  :grain-dur 2.0
+                                  :freq 100
+                                  :freq-dev-noise 10
+                                  :amp 0.1))
+(def glasses (syn/my-grain-sin [:tail producer-grp]
+                               :env-buf (:sinc5 env-bufs)
+                               :trigger-bus (:rand-sync trigger-busses)
+                               :pan-bus (:rand-sync pan-busses)
+                               :grain-dur 2.0
+                               :freq 1000
+                               :freq-dev-noise 100
+                               :amp 0.02
+                               :out reverb-bus))
 (ctl (:coin triggers) :density 115 :prob 0.75)
-(def shout (my-grain-sin [:tail producer-grp]
-                         :env-buf (:sinc5 env-bufs)
-                         :trigger-bus (:coin trigger-busses)
-                         :pan-bus (:coin pan-busses)
-                         :grain-dur 1.0
-                         :freq 135
-                         :freq-dev-noise 87
-                         :mod-freq 50
-                         :amp 0.05))
-(def shout2 (my-grain-sin [:tail producer-grp]
-                          :env-buf (:sinc5 env-bufs)
-                          :trigger-bus (:coin trigger-busses)
-                          :pan-bus (:coin pan-busses)
-                          :grain-dur 1.0
-                          :freq 305
-                          :freq-dev-noise 87
-                          :mod-freq 50
-                          :amp 0.05))
+(def shout (syn/my-grain-sin [:tail producer-grp]
+                             :env-buf (:sinc5 env-bufs)
+                             :trigger-bus (:coin trigger-busses)
+                             :pan-bus (:coin pan-busses)
+                             :grain-dur 1.0
+                             :freq 135
+                             :freq-dev-noise 87
+                             :mod-freq 50
+                             :amp 0.05))
+(def shout2 (syn/my-grain-sin [:tail producer-grp]
+                              :env-buf (:sinc5 env-bufs)
+                              :trigger-bus (:coin trigger-busses)
+                              :pan-bus (:coin pan-busses)
+                              :grain-dur 1.0
+                              :freq 305
+                              :freq-dev-noise 87
+                              :mod-freq 50
+                              :amp 0.05))
 
 (kill high-bells)
 (kill low-rumble)
