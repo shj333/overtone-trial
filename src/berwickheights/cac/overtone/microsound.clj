@@ -26,30 +26,27 @@
   [num-instances length]
   (into {} (for [idx (range 1 (inc num-instances))] [(keyword (str "sinc" idx)) (make-sinc idx length)])))
 
-
-(def env-data {:guass       (ot/env-sine)
-               :quasi-guass (ot/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :sin)
-               :linear      (ot/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :lin)
-               :welch       (ot/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :welch)
-               :expodec     (ot/envelope [1, 0.001] [1] :exp)
-               :rexpodec    (ot/envelope [0.001, 1] [1] :exp)
-               :perc1       (ot/env-perc 0.05 0.95)
-               :perc2       (ot/env-perc 0.1 0.9)})
-
-(def env-signals (merge (make-sincs 10 400)
-                        (into {} (for [[k env] env-data] [k (shapes/env->signal env 400)]))))
-
-
-;
-; Buffers for grain envelopes that can be used in synths
-;
 (defn env->buffer
   [env-signals]
   (let [b (ot/buffer (count env-signals))]
     (ot/buffer-write! b env-signals)
     b))
 
-(defn make-env-bufs [] (into {} (for [[k env] env-signals] [k (env->buffer env)])))
+(defn make-env-bufs [env-signals] (into {} (for [[k env] env-signals] [k (env->buffer env)])))
+
+
+(defonce env-data {:guass       (ot/env-sine)
+                   :quasi-guass (ot/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :sin)
+                   :linear      (ot/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :lin)
+                   :welch       (ot/envelope [0, 1, 1, 0] [0.33, 0.34, 0.33] :welch)
+                   :expodec     (ot/envelope [1, 0.001] [1] :exp)
+                   :rexpodec    (ot/envelope [0.001, 1] [1] :exp)
+                   :perc1       (ot/env-perc 0.05 0.95)
+                   :perc2       (ot/env-perc 0.1 0.9)})
+
+(defonce env-signals (merge (make-sincs 10 400)
+                            (into {} (for [[k env] env-data] [k (shapes/env->signal env 400)]))))
+
 
 
 
@@ -88,34 +85,53 @@
 ; Creates busses and instruments for triggers and pans that drive grain synths
 ;
 (defn- make-busses-insts
-  [defs bus-type]
-  (let [busses (into {} (for [key (keys defs)] [key (bus-type)]))
-        insts (into {} (for [[key bus] busses] [key ((key defs) :out bus)]))]
+  [synth-defs bus-type]
+  (let [busses (into {} (for [key (keys synth-defs)] [key (bus-type)]))
+        insts (into {} (for [[key bus] busses] [key ((key synth-defs) :out bus)]))]
     [busses insts]))
 
-(def core-trigger-defs {:sync      sync-trigger
-                        :rand-sync sync-trigger
-                        :async     async-trigger
-                        :coin      coin-trigger})
+(defonce core-trigger-defs {:sync      sync-trigger
+                            :rand-sync sync-trigger
+                            :async     async-trigger
+                            :coin      coin-trigger})
 
-(def core-pan-defs {:left         const-pan
-                    :center-left  const-pan
-                    :center       const-pan
-                    :center-right const-pan
-                    :right        const-pan})
+(defonce core-pan-defs {:left         const-pan
+                        :center-left  const-pan
+                        :center       const-pan
+                        :center-right const-pan
+                        :right        const-pan})
 
-(defn make-triggers-pans
-  ([] (make-triggers-pans {}))
-  ([trigger-defs]
-   (let [all-trigger-defs (merge core-trigger-defs trigger-defs)
-         [trigger-busses triggers] (make-busses-insts all-trigger-defs ot/control-bus)
-         pan-defs (into {} (for [k (keys all-trigger-defs)] [k rand-pan]))
-         all-pan-defs (merge core-pan-defs pan-defs)
-         [pan-busses pans] (make-busses-insts all-pan-defs ot/control-bus)]
-     (ot/ctl (:left pans) :pan -1)
-     (ot/ctl (:center-left pans) :pan -0.5)
-     (ot/ctl (:center pans) :pan 0)
-     (ot/ctl (:center-right pans) :pan 0.5)
-     (ot/ctl (:right pans) :pan 1)
-     (set-density [(:rand-sync triggers) (:rand-sync pans)])
-     {:trigger-busses trigger-busses :triggers triggers :pan-busses pan-busses :pans pans})))
+(defn- make-triggers-pans
+  [trigger-defs]
+  (let [all-trigger-defs (merge core-trigger-defs trigger-defs)
+        [trigger-busses triggers] (make-busses-insts all-trigger-defs ot/control-bus)
+        pan-defs (into {} (for [k (keys all-trigger-defs)] [k rand-pan]))
+        all-pan-defs (merge core-pan-defs pan-defs)
+        [pan-busses pans] (make-busses-insts all-pan-defs ot/control-bus)]
+    (ot/ctl (:left pans) :pan -1)
+    (ot/ctl (:center-left pans) :pan -0.5)
+    (ot/ctl (:center pans) :pan 0)
+    (ot/ctl (:center-right pans) :pan 0.5)
+    (ot/ctl (:right pans) :pan 1)
+    (set-density [(:rand-sync triggers) (:rand-sync pans)])
+    [trigger-busses triggers pan-busses pans]))
+
+
+
+;
+; Initialize data structions (envelope buffers, triggers and pans) for this namespace
+;
+(defn- init-all
+  [trigger-defs]
+  (def env-bufs (make-env-bufs env-signals))
+  (let [[trigger-busses-loc triggers-loc pan-busses-loc pans-loc] (make-triggers-pans trigger-defs)]
+    (def trigger-busses trigger-busses-loc)
+    (def triggers triggers-loc)
+    (def pan-busses pan-busses-loc)
+    (def pans pans-loc))
+  true)
+
+
+(defn init
+  ([] (init {}))
+  ([trigger-defs] (defonce data-defined (init-all trigger-defs))))
