@@ -73,6 +73,7 @@
   ([insts] (set-density insts (+ (ot/now) 1000)))
   ([insts cur-time] (set-density insts cur-time 2 20))
   ([insts cur-time low high]
+   ; TODO Do this in chunks of n settings over multiple seconds instead of firing off another apply-by every fraction of a second
    (let [density (prob/exprand low high)
          wait-time (/ 1000.0 density)
          next-time (+ cur-time wait-time)]
