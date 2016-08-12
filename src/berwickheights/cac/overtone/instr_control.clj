@@ -18,6 +18,10 @@
   [time instr-key instr-def params]
   (ot/apply-by time #(ot/at time (play-instr instr-key instr-def params))))
 
+(defn play-sound
+  [start-time time-offset instr-key sound-def]
+  (play-instr-at (+ start-time time-offset) instr-key (:synth sound-def) (:params sound-def)))
+
 (defn stop-instr
   ([instr-key] (stop-instr instr-key 10))
   ([instr-key num-incrs]
@@ -35,4 +39,5 @@
 
 (defn set-amp
   [instr-key amp]
+  (println "Set amp for instr" instr-key "to" amp)
   (ot/ctl (@instrs instr-key) :amp amp))

@@ -3,6 +3,10 @@
             [berwickheights.cac.overtone.shapes :as shapes]
             [berwickheights.cac.probability :as prob]))
 
+
+(defonce ^:private random-density-range (atom [2 20]))
+
+
 ;
 ; Grain envelopes
 ;
@@ -69,17 +73,23 @@
 ;
 ; Sets density of given instruments to random values over time
 ;
-(defn set-density
-  ([insts] (set-density insts (+ (ot/now) 1000)))
-  ([insts cur-time] (set-density insts cur-time 2 20))
-  ([insts cur-time low high]
-   ; TODO Do this in chunks of n settings over multiple seconds instead of firing off another apply-by every fraction of a second
-   (let [density (prob/exprand low high)
-         wait-time (/ 1000.0 density)
-         next-time (+ cur-time wait-time)]
-     ; (println "Density: " density ", Wait: " wait-time ", Insts: " insts)
-     (doseq [inst insts] (ot/at cur-time (ot/ctl inst :density density)))
-     (ot/apply-by next-time #'set-density [insts next-time]))))
+(defn- random-density
+  [prev-density-time]
+  (let [[low high] @random-density-range
+        density (prob/exprand low high)
+        wait-time (Math/round (/ 1000.0 density))
+        [_ prev-time] prev-density-time]
+    [density (+ prev-time wait-time)]))
+
+(defn random-density-loop
+  [insts]
+  (let [num-densities 50
+        start-time (+ (ot/now) 500)
+        densities-times (rest (take num-densities (iterate #(random-density %) [0 start-time])))
+        next-time (last (last densities-times))]
+    (doseq [[density time] densities-times]
+      (ot/at time (doseq [inst insts] (ot/ctl inst :density density))))
+    (ot/apply-by next-time #'random-density-loop [insts])))
 
 
 ;
@@ -114,7 +124,7 @@
     (ot/ctl (:center pans) :pan 0)
     (ot/ctl (:center-right pans) :pan 0.5)
     (ot/ctl (:right pans) :pan 1)
-    (set-density [(:rand-sync triggers) (:rand-sync pans)])
+    (random-density-loop [(:rand-sync triggers) (:rand-sync pans)])
     [trigger-busses triggers pan-busses pans]))
 
 
@@ -136,3 +146,12 @@
 (defn init
   ([] (init {}))
   ([trigger-defs] (defonce data-defined (init-all trigger-defs))))
+
+(defn reset
+  []
+  (ns-unmap 'berwickheights.cac.overtone.microsound 'data-defined))
+
+
+(defn set-random-density-range
+  [low high]
+  (reset! random-density-range [low high]))
