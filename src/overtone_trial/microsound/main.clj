@@ -12,8 +12,7 @@
   (micro/init)
   (micro/set-random-density-range 2 10)
   (fx/make-fx)
-  (let [start-time (+ (ot/now) 2000)
-        ; TODO This could be loaded via YML file
+  (let [; TODO This could be loaded via YML file
         sound-defs {:high-bells {:synth  syn/my-grain-sin
                                  :params {:env-buf        :expodec
                                           :trigger-bus    :rand-sync
@@ -41,14 +40,15 @@
                                           :amp            0.2
                                           :out            :reverb-bus}}}]
     (instr/define-sounds sound-defs)
-    (instr/play-sound start-time 0 :high-bells :high-bells)
-    (instr/play-sound start-time 3300 :low-rumble :low-rumble)
-    (instr/play-sound start-time 7200 :glasses :glasses)
-    (instr/stop-sound start-time 11000 :low-rumble)
-    (instr/set-amp start-time 13000 :high-bells 0.05)
-    (instr/set-amp start-time 17000 :high-bells 0.02)
-    (instr/stop-sound start-time 20000 :high-bells)
-    (instr/stop-sound start-time 27000 :glasses)))
+    (instr/set-sect-start-time (+ (ot/now) 2000))
+    (instr/play-sound 0 :high-bells :high-bells)
+    (instr/play-sound 3300 :low-rumble :low-rumble)
+    (instr/play-sound 7200 :glasses :glasses)
+    (instr/stop-sound 11000 :low-rumble)
+    (instr/set-amp 13000 :high-bells 0.05)
+    (instr/set-amp 17000 :high-bells 0.02)
+    (instr/stop-sound 20000 :high-bells)
+    (instr/stop-sound 27000 :glasses)))
 
 ; (ot/kill (instr/instr :high-bells))
 ; (ot/kill (instr/instr :low-rumble))

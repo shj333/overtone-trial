@@ -6,10 +6,13 @@
 
 (defonce ^:private sound-defs (atom {}))
 (defonce ^:private instrs (atom {}))
+(defonce ^:private sect-start-time (atom 0))
 
 (defn instr
   [instr-key]
   (@instrs instr-key))
+
+(defn set-sect-start-time [start-time] (reset! sect-start-time start-time))
 
 (defn play-instr
   [instr-key instr-def params]
@@ -37,18 +40,18 @@
      (ot/at (+ time-delta (last times)) (ot/kill this-instr)))))
 
 (defn play-sound
-  [start-time time-offset instr-key sound-def-key]
+  [time-offset instr-key sound-def-key]
   (let [sound-def (sound-def-key @sound-defs)]
-    (play-instr-at (+ start-time time-offset) instr-key (:synth sound-def) (:params sound-def))))
+    (play-instr-at (+ @sect-start-time time-offset) instr-key (:synth sound-def) (:params sound-def))))
 
 (defn stop-sound
-  [start-time time-offset instr-key]
-  (let [time (+ start-time time-offset)]
+  [time-offset instr-key]
+  (let [time (+ @sect-start-time time-offset)]
     (ot/apply-by time #'stop-instr [instr-key])))
 
 (defn set-amp
-  [start-time time-offset instr-key amp]
-  (let [time (+ start-time time-offset)]
+  [time-offset instr-key amp]
+  (let [time (+ @sect-start-time time-offset)]
     (ot/apply-by time #(ot/at time
                               (println "Set amp for instr" instr-key "to" amp)
                               (ot/ctl (@instrs instr-key) :amp amp)))))
