@@ -6,29 +6,18 @@
 
 (defonce ^:private sound-defs (atom {}))
 (defonce ^:private instrs (atom {}))
-(defonce ^:private sect-start-time (atom 0))
 
-(defn instr
-  [instr-key]
-  (@instrs instr-key))
-
-(defn set-sect-start-time [start-time] (reset! sect-start-time start-time))
 
 (defn play-instr
-  [instr-key instr-def params]
+  [instr-key synth params]
   (println "Playing instr" instr-key)
-  (let [instr (apply instr-def params)]
-    (swap! instrs assoc instr-key instr)))
-
-(defn play-instr-at
-  [time instr-key instr-def params]
-  (ot/apply-by time #(ot/at time (play-instr instr-key instr-def params))))
+  (swap! instrs assoc instr-key (apply synth params)))
 
 (defn stop-instr
   ([instr-key] (stop-instr instr-key 10))
   ([instr-key num-incrs]
    (println "Stopping instr" instr-key "over" num-incrs "increments")
-   (let [this-instr (instr instr-key)
+   (let [this-instr (@instrs instr-key)
          start-amp (ot/node-get-control this-instr :amp)
          amp-delta (/ start-amp num-incrs)
          amps (reverse (take num-incrs (range 0 start-amp amp-delta)))
@@ -39,22 +28,23 @@
      (doseq [[amp time] amps-times] (ot/at time (ot/ctl this-instr :amp amp)))
      (ot/at (+ time-delta (last times)) (ot/kill this-instr)))))
 
+
+
 (defn play-sound
-  [time-offset instr-key sound-def-key]
-  (let [sound-def (sound-def-key @sound-defs)]
-    (play-instr-at (+ @sect-start-time time-offset) instr-key (:synth sound-def) (:params sound-def))))
+  ([time instr-key] (play-sound time instr-key instr-key))
+  ([time instr-key sound-def-key]
+   (let [{:keys [synth params]} (sound-def-key @sound-defs)]
+     (ot/apply-by time #(ot/at time (play-instr instr-key synth params))))))
 
 (defn stop-sound
-  [time-offset instr-key]
-  (let [time (+ @sect-start-time time-offset)]
-    (ot/apply-by time #'stop-instr [instr-key])))
+  [time instr-key]
+  (ot/apply-by time #'stop-instr [instr-key]))
 
 (defn set-amp
-  [time-offset instr-key amp]
-  (let [time (+ @sect-start-time time-offset)]
-    (ot/apply-by time #(ot/at time
-                              (println "Set amp for instr" instr-key "to" amp)
-                              (ot/ctl (@instrs instr-key) :amp amp)))))
+  [time instr-key amp]
+  (ot/apply-by time #(ot/at time
+                            (println "Set amp for instr" instr-key "to" amp)
+                            (ot/ctl (@instrs instr-key) :amp amp))))
 
 
 (defn- param-data
