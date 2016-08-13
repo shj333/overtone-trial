@@ -5,6 +5,11 @@
 
 
 (defonce ^:private random-density-range (atom [2 20]))
+(defonce ^:private env-bufs (atom {}))
+(defonce ^:private trigger-busses (atom {}))
+(defonce ^:private triggers (atom {}))
+(defonce ^:private pan-busses (atom {}))
+(defonce ^:private pans (atom {}))
 
 
 ;
@@ -91,6 +96,10 @@
       (ot/at time (doseq [inst insts] (ot/ctl inst :density density))))
     (ot/apply-by next-time #'random-density-loop [insts])))
 
+(defn set-random-density-range
+  [low high]
+  (reset! random-density-range [low high]))
+
 
 ;
 ; Creates busses and instruments for triggers and pans that drive grain synths
@@ -132,26 +141,23 @@
 ;
 ; Initialize data structions (envelope buffers, triggers and pans) for this namespace
 ;
-(defn- init-all
-  [trigger-defs]
-  (def env-bufs (make-env-bufs env-signals))
-  (let [[trigger-busses-loc triggers-loc pan-busses-loc pans-loc] (make-triggers-pans trigger-defs)]
-    (def trigger-busses trigger-busses-loc)
-    (def triggers triggers-loc)
-    (def pan-busses pan-busses-loc)
-    (def pans pans-loc))
-  true)
-
-
 (defn init
   ([] (init {}))
-  ([trigger-defs] (defonce data-defined (init-all trigger-defs))))
+  ([trigger-defs]
+   (swap! env-bufs merge (make-env-bufs env-signals))
+   (let [[trigger-busses-loc triggers-loc pan-busses-loc pans-loc] (make-triggers-pans trigger-defs)]
+     (swap! trigger-busses merge trigger-busses-loc)
+     (swap! triggers merge triggers-loc)
+     (swap! pan-busses merge pan-busses-loc)
+     (swap! pans merge pans-loc)
+     true)))
 
-(defn reset
-  []
-  (ns-unmap 'berwickheights.cac.overtone.microsound 'data-defined))
 
-
-(defn set-random-density-range
-  [low high]
-  (reset! random-density-range [low high]))
+;
+; Accessors to envelope buffers, triggers, pans
+;
+(defn env-buf [key] (key @env-bufs))
+(defn trigger [key] (key @triggers))
+(defn trigger-bus [key] (key @trigger-busses))
+(defn pan [key] (key @pans))
+(defn pan-bus [key] (key @pan-busses))

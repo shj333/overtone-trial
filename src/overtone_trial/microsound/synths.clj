@@ -16,10 +16,3 @@
                 car-freq (+ freq freq-dev)
                 mod-depth (range-lin (lf-noise1:kr) 1 10)]
             (out:ar out (* amp (grain-fm:ar 2 trigger, grain-dur car-freq mod-freq mod-depth pan env-buf)))))
-(defsynth reverb1
-          [in 0 out 0 room-size 10 rev-time 3 damping 0.5 input-bw 0.5 spread 15 dry-level 1 early-level 0.7 tail-level 0.5 room-size 300]
-          (let [sig (in:ar in)
-                dry-level-amp (dbamp dry-level)
-                early-level-amp (dbamp early-level)
-                tail-level-amp (dbamp tail-level)]
-            (out:ar out (g-verb:ar sig room-size rev-time damping input-bw spread dry-level-amp early-level-amp tail-level-amp room-size))))
